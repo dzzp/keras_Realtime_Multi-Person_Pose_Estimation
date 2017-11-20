@@ -1,4 +1,6 @@
-
+from keras.layers import Activation
+from keras.layers.pooling import MaxPooling2D
+from keras.layers.convolutional import Conv2D
 
 def relu(x):
     return Activation('relu')(x)
@@ -14,7 +16,7 @@ def pooling(x, ks, st, name):
     return x
 
 
-def vgg_blox(x):
+def vgg_block(x):
     # Block 1
     x = conv(x, 64, 3, "conv1_1")
     x = relu(x)

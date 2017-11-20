@@ -2,15 +2,15 @@ import math
 import scipy
 import keras
 
-%matplotlib inline
 import cv2
 import matplotlib
-import pylab as plt
 import numpy as np
 import util
 
 from helper import *
 from config_reader import config_reader
+
+from matplotlib import cm
 
 from keras.models import Sequential, Model
 from keras.layers import Input, Dense, Activation, Lambda
@@ -29,7 +29,7 @@ np_branch1 = 38
 np_branch2 = 19
 
 img_normalized = Lambda(lambda x: x / 256 - 0.5)(img_input)
-tage0_out = vgg_block(img_normalized)
+stage0_out = vgg_block(img_normalized)
 
 # stage 1
 stage1_branch1_out = stage1_block(stage0_out, np_branch1, 1)
@@ -48,7 +48,7 @@ model.load_weights(weights_path)
 
 model.summary()
 
-test_image = 'sample_images/test2.jpg'
+test_image = 'sample_images/ski.jpg'
 oriImg = cv2.imread(test_image) # B,G,R order
 
 param, model_params = config_reader()
@@ -57,6 +57,7 @@ multiplier = [x * model_params['boxsize'] / oriImg.shape[0] for x in param['scal
 
 heatmap_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], 19))
 paf_avg = np.zeros((oriImg.shape[0], oriImg.shape[1], 38))
+'''
 # first figure shows padded images
 f, axarr = plt.subplots(1, len(multiplier))
 f.set_size_inches((20, 5))
@@ -66,6 +67,7 @@ f2.set_size_inches((20, 5))
 # third figure shows PAFs
 f3, axarr3 = plt.subplots(2, len(multiplier))
 f3.set_size_inches((20, 10))
+'''
 
 for m in range(len(multiplier)):
     scale = multiplier[m]
@@ -252,7 +254,7 @@ subset = np.delete(subset, deleteIdx, axis=0)
 colors = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 255, 0], [170, 255, 0], [85, 255, 0], [0, 255, 0], \
           [0, 255, 85], [0, 255, 170], [0, 255, 255], [0, 170, 255], [0, 85, 255], [0, 0, 255], [85, 0, 255], \
           [170, 0, 255], [255, 0, 255], [255, 0, 170], [255, 0, 85]]
-cmap = matplotlib.cm.get_cmap('hsv')
+cmap = cm.get_cmap('hsv')
 
 canvas = cv2.imread(test_image) # B,G,R order
 
@@ -263,9 +265,7 @@ for i in range(18):
         cv2.circle(canvas, all_peaks[i][j][0:2], 4, colors[i], thickness=-1)
 
 to_plot = cv2.addWeighted(oriImg, 0.3, canvas, 0.7, 0)
-plt.imshow(to_plot[:,:,[2,1,0]])
-fig = matplotlib.pyplot.gcf()
-fig.set_size_inches(12, 12)
+#plt.imshow(to_plot[:,:,[2,1,0]])
 
 # visualize 2
 stickwidth = 4
@@ -286,6 +286,4 @@ for i in range(17):
         cv2.fillConvexPoly(cur_canvas, polygon, colors[i])
         canvas = cv2.addWeighted(canvas, 0.4, cur_canvas, 0.6, 0)
         
-plt.imshow(canvas[:,:,[2,1,0]])
-fig = matplotlib.pyplot.gcf()
-fig.set_size_inches(12, 12)
+#plt.imshow(canvas[:,:,[2,1,0]])
